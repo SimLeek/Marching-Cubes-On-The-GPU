@@ -10,6 +10,7 @@ Initial:
   * Introduced hole bug...
 * Added player tracking
 * Added height weighting for mountainscape generation
+* Replaced shader slot with material to allow rendering pipelines
 
 
 ## Original Info
