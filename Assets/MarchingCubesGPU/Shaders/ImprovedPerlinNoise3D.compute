@@ -10,6 +10,11 @@ float _Frequency, _Lacunarity, _Gain;
 
 int _Width, _Height;
 
+float _height_dieoff;
+
+int _OffsetX, _OffsetY, _OffsetZ;
+int _FullOffsetX, _FullOffsetY, _FullOffsetZ;
+
 RWStructuredBuffer<float> _Result;
 
 float3 fade(float3 t)
@@ -109,16 +114,18 @@ float ridgedmf(float3 p, int octaves, float offset)
 [numthreads(8,8,8)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-	float3 uv = float3(id);
+	float3 uv = float3(id) + float3(_OffsetX, _OffsetY, _OffsetZ);
 
 	//uncomment this for fractal noise
-	float n = fBm(uv, 4);
+	//float n = fBm(uv, 4);
 
 	//uncomment this for turbulent noise
 	//float n = turbulence(uv, 4);
 
 	//uncomment this for ridged multi fractal
-	//float n = ridgedmf(uv, 4, 1.0);
+	float n = ridgedmf(uv, 4, 1.0);
+	n = min(max(-1.0, n-(_height_dieoff*(float3(id).y + _FullOffsetY-8))), 1.0);
+	//n = -n;
 	
 	_Result[id.x + id.y * _Width + id.z * _Width * _Height] = n;
 

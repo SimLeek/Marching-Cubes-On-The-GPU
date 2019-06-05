@@ -12,6 +12,7 @@ SamplerState _LinearClamp;
 float _Target;
 
 int _Width, _Height, _Depth, _Border;
+int _Width_Plus, _Height_Plus, _Depth_Plus;
 
 StructuredBuffer<int> _TriangleConnectionTable;
 
@@ -44,17 +45,21 @@ static float3 vertexOffset[8] =
 	float3(0, 0, 1),float3(1, 0, 1),float3(1, 1, 1),float3(0, 1, 1)
 };
 
-void FillCube(int x, int y, int z, out float cube[8])
+void FillCube(int x_, int y_, int z_, out float cube[8])
 {
-	cube[0] = _Voxels[x + y * _Width + z * _Width * _Height];
-	cube[1] = _Voxels[(x + 1) + y * _Width + z * _Width * _Height];
-	cube[2] = _Voxels[(x + 1) + (y + 1) * _Width + z * _Width * _Height];
-	cube[3] = _Voxels[x + (y + 1) * _Width + z * _Width * _Height];
+	int x = x_ + (_Width_Plus - _Width) / 2;
+	int y = y_ + (_Height_Plus - _Height) / 2;
+	int z = z_ + (_Depth_Plus - _Depth) / 2;
 
-	cube[4] = _Voxels[x + y * _Width + (z + 1) * _Width * _Height];
-	cube[5] = _Voxels[(x + 1) + y * _Width + (z + 1) * _Width * _Height];
-	cube[6] = _Voxels[(x + 1) + (y + 1) * _Width + (z + 1) * _Width * _Height];
-	cube[7] = _Voxels[x + (y + 1) * _Width + (z + 1) * _Width * _Height];
+	cube[0] = _Voxels[x + y * _Width_Plus + z * _Width_Plus * _Height_Plus];
+	cube[1] = _Voxels[(x + 1) + y * _Width_Plus + z * _Width_Plus * _Height_Plus];
+	cube[2] = _Voxels[(x + 1) + (y + 1) * _Width_Plus + z * _Width_Plus * _Height_Plus];
+	cube[3] = _Voxels[x + (y + 1) * _Width_Plus + z * _Width_Plus * _Height_Plus];
+
+	cube[4] = _Voxels[x + y * _Width_Plus + (z + 1) * _Width_Plus * _Height_Plus];
+	cube[5] = _Voxels[(x + 1) + y * _Width_Plus + (z + 1) * _Width_Plus * _Height_Plus];
+	cube[6] = _Voxels[(x + 1) + (y + 1) * _Width_Plus + (z + 1) * _Width_Plus * _Height_Plus];
+	cube[7] = _Voxels[x + (y + 1) * _Width_Plus + (z + 1) * _Width_Plus * _Height_Plus];
 }
 
 // GetOffset finds the approximate point of intersection of the surface
@@ -82,12 +87,16 @@ void CSMain(int3 id : SV_DispatchThreadID)
 	//Dont generate verts at the edge as they dont have 
 	//neighbours to make a cube from and the normal will 
 	//not be correct around border.
-	if (id.x >= _Width - 1 - _Border) return;
-	if (id.y >= _Height - 1 - _Border) return;
-	if (id.z >= _Depth - 1 - _Border) return;
+	//FIX: border is now taken care of by larger voxels array.
+	int _x = id.x + (_Width_Plus - _Width) / 2 + _Border;
+	int _y = id.y + (_Height_Plus - _Height) / 2 + _Border;
+	int _z = id.z + (_Depth_Plus - _Depth) / 2 + _Border;
+	if (_x >= _Width_Plus - (_Width_Plus - _Width) / 2 - _Border) return;
+	if (_y >= _Height_Plus - (_Width_Plus - _Width) / 2 - _Border) return;
+	if (_z >= _Depth_Plus - (_Width_Plus - _Width) / 2 - _Border) return;
 
 	float3 pos = float3(id);
-	float3 centre = float3(_Width, 0, _Depth) / 2.0;
+	float3 centre = float3(_Width/2.0 + (_Width_Plus - _Width) / 2, 0, _Depth/2.0 + (_Depth_Plus - _Depth) / 2);
 
 	float cube[8];
 	FillCube(id.x, id.y, id.z, cube);
@@ -118,7 +127,7 @@ void CSMain(int3 id : SV_DispatchThreadID)
 		}
 	}
 
-	float3 size = float3(_Width - 1, _Height - 1, _Depth - 1);
+	float3 size = float3(_Width_Plus - 1, _Height_Plus - 1, _Depth_Plus - 1);
 
 	int idx = id.x + id.y * _Width + id.z * _Width * _Height;
 
