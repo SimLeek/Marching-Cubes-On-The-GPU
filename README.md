@@ -1,4 +1,5 @@
-# Marching-Cubes-On-The-GPU
+# GPU Infinite Marching Cubes
+Generates terrain, caves, or any mathimatical equation, into near infinite space.
 
 ![Infinite Marching Cubes GPU](https://thumbs.gfycat.com/UnripeKaleidoscopicFlyinglemur-size_restricted.gif)
 
