@@ -1,5 +1,19 @@
 # Marching-Cubes-On-The-GPU
 
+![Infinite Marching Cubes GPU](https://thumbs.gfycat.com/UnripeKaleidoscopicFlyinglemur-size_restricted.gif)
+
+## Updates
+
+Initial:
+
+* Added infinite terrain generation
+** Introduced hole bug...
+* Added player tracking
+* Added height weighting for mountainscape generation
+
+
+## Original Info
+
 This project generates voxels and the mesh all on the GPU using a compute shader version of the marching cubes algorithm. The voxels are generated using a version of the improved Perlin noise done previously but running in a compute shader.
 
 For practically reasons it maybe best to do this sort of thing using multi-threading on the CPU but I though it would still be useful to have a version running on the GPU. I have also included some code in the script to read back the generated mesh from the GPU and convert it into a normal mesh. I dont recommend doing this every frame but its there if you need it.
