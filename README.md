@@ -7,7 +7,7 @@
 Initial:
 
 * Added infinite terrain generation
-** Introduced hole bug...
+  * Introduced hole bug...
 * Added player tracking
 * Added height weighting for mountainscape generation
 
