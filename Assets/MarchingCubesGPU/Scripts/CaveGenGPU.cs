@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using ImprovedPerlinNoiseProject;
 using MarchingCubesGPUProject;
 
+
 public class CaveGenGPU : MonoBehaviour
 {
     //The size of the voxel array for each dimension
@@ -293,11 +294,15 @@ public class CaveGenGPU : MonoBehaviour
 
     GameObject MakeGameObject(List<Vector3> positions, List<Vector3> normals, List<int> index, Vector3Int chunk_offset)
     {
+        var pos = GetComponent<Transform>().position;
+        var scale = GetComponent<Transform>().localScale;
+
         Mesh mesh = new Mesh();
         mesh.vertices = positions.ToArray();
         mesh.normals = normals.ToArray();
         mesh.bounds = new Bounds(new Vector3(0, chunk_width / 2, 0), new Vector3(chunk_width, chunk_height, chunk_length));
         mesh.SetTriangles(index.ToArray(), 0);
+        mesh.SetUVs(0, UvCalculator.CalculateUVs(mesh.vertices, scale.magnitude));
 
         GameObject go = new GameObject("Voxel Mesh");
         go.transform.parent = transform;
@@ -306,11 +311,9 @@ public class CaveGenGPU : MonoBehaviour
         go.AddComponent<MeshRenderer>();
         go.GetComponent<Renderer>().material = terrain_material;
         go.GetComponent<MeshFilter>().mesh = mesh;
-        go.GetComponent<MeshFilter>().mesh = mesh;
         go.GetComponent<MeshCollider>().sharedMesh = mesh;
         go.GetComponent<MeshCollider>().convex = false;
-        var pos = GetComponent<Transform>().position;
-        var scale = GetComponent<Transform>().localScale;
+        
         //Center
         go.transform.localPosition = new Vector3(0, -(chunk_height * scale.y) / 2f, 0);
         //go.transform.localPosition = new Vector3(pos.x - chunk_width * scale.x / 2f, pos.y - chunk_height * scale.y / 2f, pos.z - chunk_length * scale.z / 2f);
